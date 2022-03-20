@@ -1,0 +1,11 @@
+name: ECCV20-STDN
+channels:
+  - defaults
+dependencies:
+  - python=3.6.13
+  - tensorflow=1.13.1
+  - opencv=3.4.2=py36h6fd60c2_1
+  - numpy=1.19.2
+  - pillow=8.3.1
+  - matplotlib=3.3.4
+prefix: /Users/peteroverbury/opt/anaconda3/envs/ECCV20-STDN

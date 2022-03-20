@@ -1,0 +1,64 @@
+FROM continuumio/miniconda3
+RUN conda create -n env python=3.6
+#RUN echo "source activate env" > ~/.bashrc
+ENV PATH /opt/conda/envs/env/bin:$PATH
+RUN conda --version
+
+# Install packages
+RUN apt-get update
+RUN set -xe \
+  && apt-get update -y \
+  && apt-get install -y python3-pip
+RUN pip3 install --upgrade pip setuptools wheel
+RUN apt-get install nano
+RUN apt-get install -y build-essential
+RUN apt-get install -y tmux
+RUN apt update && apt install -y libsm6 libxext6
+RUN apt-get install -y wget
+RUN apt-get install -y ffmpeg
+RUN apt-get install -y htop
+RUN apt-get install -y libfontconfig1 libxrender1
+RUN apt-get update
+RUN apt-get install -y fish
+RUN apt-get install -y cmake
+RUN apt-get install -y git
+RUN pip3 install p5py
+RUN pip3 install PEP517
+RUN apt install -y libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-3.0
+RUN apt-get install -y gstreamer-1.0
+RUN pip3 install azure-storage-blob==0.37.1
+# Install other Python packages
+#COPY requirements_ECCV20_3_6.txt /tmp/requirements.txt
+#RUN pip install -r /tmp/requirements.txt
+COPY environment.yml /tmp/environment.yml
+RUN conda env create -f /tmp/environment.yml
+# Pull the environment name out of the environment.yml
+RUN echo "source activate $(head -1 /tmp/environment.yml | cut -d' ' -f2)" > ~/.bashrc
+ENV PATH /opt/conda/envs/$(head -1 /tmp/environment.yml | cut -d' ' -f2)/bin:$PATH
+
+#Iproov Code
+#RUN git clone https://github.com/iProov/iproov_research.git
+#RUN cd iproov_research
+#RUN pip install -e .
+RUN pip3 install --upgrade setuptools pip
+RUN pip3 install numpy==1.22.1
+COPY --from=iproovresearch.azurecr.io/iproov_research:merge-52073 . /tmp/iproov_research
+RUN pip3 install --no-cache-dir /tmp/iproov_research  #\
+    #&& rm -r /tmp/iproov_research
+
+# Make aliases
+# RUN echo 'alias jupyterlab="jupyter lab --ip=0.0.0.0 --port=8853 --no-browser"' >> ~/.bashrc
+# RUN echo 'fish' >> ~/.basic
+RUN chsh -s `which fish`
+# Git config
+RUN git config --global user.email peteroverbury@iproov.com
+RUN git config --global user.name peteroverbury
+# Directories
+WORKDIR /home/peteroverbury
+# Encoding
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
+
+RUN echo "source activate ECCV20-STDN" > ~/.bashrc
+#RUN conda activate ECCV20-STDN
+#RUN python -c "conda activate ECCV20-STDN"
